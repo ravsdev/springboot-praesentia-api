@@ -1,0 +1,59 @@
+http://localhost:8080/auth/test
+###
+POST http://localhost:8080/auth/register HTTP/1.1
+content-type: application/json
+
+{
+    "firstname": "Admin",
+    "lastname": "Admin",
+    "email": "admin@praesentia.org",
+    "password": "admin",
+    "dni": "12345678A",
+    "role": "ADMIN"
+}
+
+###
+POST http://localhost:8080/auth/register HTTP/1.1
+content-type: application/json
+
+{
+    "firstname": "Default",
+    "lastname": "User",
+    "email": "user@praesentia.org",
+    "password": "user",
+    "dni": "87654321B",
+    "role": "EMPLOYEE"
+}
+###
+POST http://localhost:8080/auth/login HTTP/1.1
+content-type: application/json
+
+{
+    "email": "admin@praesentia.org",
+    "password": "admin"
+}
+###
+http://localhost:8080/v1/users
+###
+http://localhost:8080/v1/users/1
+###
+http://localhost:8080/api/v1/records
+###
+http://localhost:8080/api/v1/prendas/S012345670?promo=true
+###
+http://localhost:8080/api/v1/promociones?limit=1&offset=0
+###
+DELETE http://localhost:8080/api/v1/promociones/N2023
+###
+DELETE http://localhost:8080/api/v1/promociones/N2023/prendas HTTP/1.1
+content-type: application/json
+
+["S012345670"]
+###
+PUT http://localhost:8080/api/v1/prendas/S012345670 HTTP/1.1
+content-type: application/json
+
+{
+    "precio": 10.50,
+    "categorias": ["ZAPATILLAS"]
+}
