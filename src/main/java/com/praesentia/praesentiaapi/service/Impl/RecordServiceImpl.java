@@ -38,6 +38,11 @@ public class RecordServiceImpl implements RecordService {
     }
 
     @Override
+    public Optional<List<Record>> findAllByUserId(Long id) {
+            return recordRepository.findAllByUserId(id);
+    }
+
+    @Override
     public Record save(Record record) {
         return recordRepository.save(record);
     }

@@ -1,8 +1,12 @@
 package com.praesentia.praesentiaapi.dto;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.praesentia.praesentiaapi.entity.Record;
 import com.praesentia.praesentiaapi.entity.Role;
 
@@ -20,10 +24,17 @@ public class UserDTO {
     private String email;
     private String dni;
     private Role role;
-   // private List<Record> records = new ArrayList<>();
+    private boolean enabled;
+    private List<Record> records;
+    /*
+    private List<Map<String, Object>> recordsFiltered;
 
     //TO-DO remove user field
-   // public List<Record> getRecords() {
-        //return records.st;
-    //}
+    public List<Map<String, Object>> getrecordsFiltered() {
+        return records.stream().map(record->{
+            Map<String, Object> fil = new HashMap<>();
+            fil.put("id", record.getUser().getId());
+            return fil;
+        }).toList();
+    }*/
 }

@@ -11,9 +11,9 @@ public interface RecordService {
     List<Record> findAll();
     Page<Record> findAll(Pageable page);
     Optional<Record> findById(Long id);
+    Optional<List<Record>> findAllByUserId(Long id);
     Record save(Record record);
     Record update(Record record);
     void deleteById(Long id);
-
     Optional<Record> findLatestRecord(Long userId);
 }

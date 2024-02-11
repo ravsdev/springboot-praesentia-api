@@ -30,7 +30,7 @@ public class UserController {
     private ModelMapper modelMapper;
 
     @GetMapping()
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('SUPERVISOR')")
     public ResponseEntity<List<UserDTO>> getAll() {
         List<User> users = userService.findAll();
         if (users.isEmpty())
@@ -61,6 +61,10 @@ public class UserController {
             throw new AlreadyExistsException("El correo electrónico: " + p.getEmail() + " ya existe");
         });
 
+        userService.findByDni(user.getDni()).ifPresent(p -> {
+            throw new AlreadyExistsException("El DNI: " + p.getEmail() + " ya está asignado a otro usuario.");
+        });
+
         User newUser = userService.save(user);
         return ResponseEntity.status(HttpStatus.CREATED).body(modelMapper.map(newUser, UserDTO.class));
     }
@@ -74,6 +78,7 @@ public class UserController {
 
         if (user.isEmpty())
             return ResponseEntity.notFound().build();
+
         if(userDTO.getId() == null)
             userDTO.setId(id);
 
@@ -83,7 +88,6 @@ public class UserController {
 
     }
 
-    // TO-DO: Sólo se podrá borrar si no tiene registros.
     @DeleteMapping("{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<String> delete(
@@ -92,10 +96,12 @@ public class UserController {
 
         if (user.isEmpty())
             return ResponseEntity.notFound().build();
-/*
+
+       // Boolean noRecords = user.get().getRecords().isEmpty();
+
         if(!user.get().getRecords().isEmpty())
             return ResponseEntity.status(HttpStatus.CONFLICT).body("El usuario tiene registros.");
-        */
+
         userService.deleteById(id);
 
         return ResponseEntity.ok("User deleted");

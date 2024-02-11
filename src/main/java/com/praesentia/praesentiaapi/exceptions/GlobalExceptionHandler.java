@@ -91,4 +91,5 @@ public class GlobalExceptionHandler {
                         HttpStatus.BAD_GATEWAY.value()),
                 HttpStatus.BAD_GATEWAY);
     }
+
 }

@@ -41,13 +41,12 @@ public class User implements UserDetails {
     private String password;
 
     @Column(unique = true)
-    @NotNull
+    @NotNull(message = "DNI Required")
     // @Pattern(regexp = "^\\d{8}-?[A-Z]{1}$", message = "DNI incorrecto")
     private String dni;
 
     @Enumerated(EnumType.STRING)
     @NotNull
-
     private Role role = Role.EMPLOYEE;
 
     @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
@@ -58,6 +57,9 @@ public class User implements UserDetails {
 
     @LastModifiedDate
     private Date modifiedAt;
+
+    @Builder.Default
+    private Boolean enabled = true;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -86,6 +88,6 @@ public class User implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return true;
+        return this.enabled;
     }
 }

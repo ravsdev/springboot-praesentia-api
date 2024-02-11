@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 
 @Data
 @AllArgsConstructor
@@ -15,12 +16,18 @@ public class RecordDTO {
     private Long id;
     private LocalDateTime recordIn;
     private LocalDateTime recordOut;
-    private Long totalTime;
+    private String totalTime;
 
-    public Long getTotalTime() {
-        LocalDate day = recordIn.toLocalDate();
+    public String getTotalTime() {
+        //LocalDate in = recordIn.toLocalDate();
+        if(recordOut == null) return String.valueOf(Duration.ofSeconds(0).toSeconds());
 
-        if(recordIn == null || recordOut == null) return Duration.ofSeconds(0).getSeconds();
-        return Duration.between(this.recordIn,this.recordOut).getSeconds();
+        Duration result = Duration.between(this.recordIn,this.recordOut);
+
+        return String.format("%02d:%02d:%02d",
+                result.toHoursPart(),
+                result.toMinutesPart(),
+                result.toSecondsPart());
+
     }
 }

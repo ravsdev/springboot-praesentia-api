@@ -49,6 +49,13 @@ public class UserServiceImpl implements UserService {
 
         return userRepository.findByEmail(email);
     }
+
+    @Override
+    public Optional<User> findByDni(String dni) {
+        return userRepository.findByDni(dni);
+
+    }
+
     @Override
     public User save(User user) {
         User newUser = User.builder()
@@ -71,6 +78,8 @@ public class UserServiceImpl implements UserService {
         updateUser.setFirstname(user.getFirstname());
         updateUser.setLastname(user.getLastname());
         updateUser.setEmail(user.getEmail());
+        updateUser.setRole(user.getRole());
+        updateUser.setEnabled(user.getEnabled());
 
         return userRepository.save(updateUser);
     }

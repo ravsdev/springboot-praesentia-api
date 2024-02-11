@@ -31,7 +31,6 @@ public class SecurityConfig {
                                 .authorizeHttpRequests((authorizeHttpRequest) -> authorizeHttpRequest
                                                 .requestMatchers("/auth/**").permitAll()
                                                 .requestMatchers("/h2-console/**").permitAll()
-                                                .requestMatchers("/employee/**").hasRole("EMPLOYEE")
                                                 // .requestMatchers("/v1/users").hasRole("ADMIN")
                                                 // .requestMatchers(HttpMethod.POST, "/auth/**").permitAll()
                                                 .anyRequest().authenticated())
