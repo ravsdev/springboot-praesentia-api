@@ -25,16 +25,5 @@ public class UserDTO {
     private String dni;
     private Role role;
     private boolean enabled;
-    private List<Record> records;
-    /*
-    private List<Map<String, Object>> recordsFiltered;
 
-    //TO-DO remove user field
-    public List<Map<String, Object>> getrecordsFiltered() {
-        return records.stream().map(record->{
-            Map<String, Object> fil = new HashMap<>();
-            fil.put("id", record.getUser().getId());
-            return fil;
-        }).toList();
-    }*/
 }

@@ -25,9 +25,9 @@ public class Record {
     private Long id;
 
     @CreatedDate
-    private LocalDateTime recordIn;
+    private LocalDateTime recordStart;
 
-    private LocalDateTime recordOut = null;
+    private LocalDateTime recordEnd = null;
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)

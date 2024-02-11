@@ -21,6 +21,8 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import com.praesentia.praesentiaapi.service.JwtService;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 @Component
 @RequiredArgsConstructor

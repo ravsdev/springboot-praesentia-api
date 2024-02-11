@@ -1,6 +1,8 @@
 package com.praesentia.praesentiaapi.controller;
 
 import com.praesentia.praesentiaapi.dto.UserDTO;
+import com.praesentia.praesentiaapi.dto.UserRecordDTO;
+import com.praesentia.praesentiaapi.entity.Role;
 import com.praesentia.praesentiaapi.entity.User;
 import com.praesentia.praesentiaapi.exceptions.AlreadyExistsException;
 import com.praesentia.praesentiaapi.service.UserService;
@@ -15,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -31,10 +34,18 @@ public class UserController {
 
     @GetMapping()
     @PreAuthorize("hasRole('ADMIN') or hasRole('SUPERVISOR')")
-    public ResponseEntity<List<UserDTO>> getAll() {
+    public ResponseEntity<List<?>> getAll(@RequestParam(name="records", required = false) Boolean records) {
         List<User> users = userService.findAll();
         if (users.isEmpty())
             return ResponseEntity.noContent().build();
+
+        if(records) {
+            List<UserRecordDTO> usersRecordsDTO = users.stream()
+                    .map(user -> modelMapper.map(user, UserRecordDTO.class))
+                    .toList();
+            return ResponseEntity.ok(usersRecordsDTO);
+        }
+
         List<UserDTO> usersDTO = users.stream()
                 .map(user -> modelMapper.map(user, UserDTO.class))
                 .toList();
@@ -62,7 +73,7 @@ public class UserController {
         });
 
         userService.findByDni(user.getDni()).ifPresent(p -> {
-            throw new AlreadyExistsException("El DNI: " + p.getEmail() + " ya está asignado a otro usuario.");
+            throw new AlreadyExistsException("El DNI: " + p.getDni() + " ya está asignado a otro usuario.");
         });
 
         User newUser = userService.save(user);
@@ -73,14 +84,21 @@ public class UserController {
     @PreAuthorize("(#id == authentication.principal.id) or hasRole('ADMIN')")
     public ResponseEntity<UserDTO> update(
             @PathVariable(name = "id") Long id,
-            @RequestBody UserDTO userDTO) {
+            @RequestBody UserDTO userDTO,
+            Authentication authentication) {
         Optional<User> user = userService.findById(id);
+        User authUser = (User) authentication.getPrincipal();
 
         if (user.isEmpty())
             return ResponseEntity.notFound().build();
 
         if(userDTO.getId() == null)
             userDTO.setId(id);
+
+        if(authUser.getRole() != Role.ADMIN){
+            userDTO.setRole(user.get().getRole());
+            userDTO.setEnabled(user.get().getEnabled());
+        }
 
         User updateUser = userService.update(modelMapper.map(userDTO, User.class));
 

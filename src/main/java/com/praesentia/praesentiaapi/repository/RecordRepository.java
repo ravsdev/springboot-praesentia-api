@@ -6,6 +6,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -16,4 +18,7 @@ public interface RecordRepository extends JpaRepository<Record, Long> {
 
     //@Query("SELECT r FROM Record r WHERE user_id=:userId")
     Optional<List<Record>> findAllByUserId(Long id);
+    //@Query(value = "SELECT * FROM records WHERE record", nativeQuery = true)
+    List<Record> findAllByRecordStartBetween(LocalDateTime dateFrom, LocalDateTime dateTo);
+
 }

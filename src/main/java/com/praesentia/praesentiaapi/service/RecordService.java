@@ -4,6 +4,8 @@ import com.praesentia.praesentiaapi.entity.Record;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -16,4 +18,6 @@ public interface RecordService {
     Record update(Record record);
     void deleteById(Long id);
     Optional<Record> findLatestRecord(Long userId);
+    List<Record> findAllByDate(LocalDateTime dateFrom, LocalDateTime dateTo);
+
 }

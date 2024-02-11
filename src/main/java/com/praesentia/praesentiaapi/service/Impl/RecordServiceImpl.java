@@ -1,6 +1,5 @@
 package com.praesentia.praesentiaapi.service.Impl;
 
-import com.praesentia.praesentiaapi.dto.RecordDTO;
 import com.praesentia.praesentiaapi.entity.Record;
 import com.praesentia.praesentiaapi.repository.RecordRepository;
 import com.praesentia.praesentiaapi.service.RecordService;
@@ -11,6 +10,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -60,5 +61,10 @@ public class RecordServiceImpl implements RecordService {
     @Override
     public Optional<Record> findLatestRecord(Long userId) {
         return recordRepository.findLatestRecord(userId);
+    }
+
+    @Override
+    public List<Record> findAllByDate(LocalDateTime dateFrom, LocalDateTime dateTo) {
+        return recordRepository.findAllByRecordStartBetween(dateFrom, dateTo);
     }
 }

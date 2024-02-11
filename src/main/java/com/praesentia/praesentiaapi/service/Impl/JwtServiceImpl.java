@@ -58,6 +58,8 @@ public class JwtServiceImpl implements JwtService {
     @Override
     public boolean isTokenValid(String token, UserDetails userDetails) {
         final String username = getEmailFromToken(token);
+        if(!userDetails.isEnabled()) return false;
+
         return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
     }
 

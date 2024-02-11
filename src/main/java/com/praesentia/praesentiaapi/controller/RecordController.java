@@ -8,6 +8,7 @@ import com.praesentia.praesentiaapi.service.RecordService;
 import com.praesentia.praesentiaapi.service.UserService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -34,11 +35,21 @@ public class RecordController {
 
     @GetMapping()
     @PreAuthorize("(#userId == authentication.principal.id) or hasRole('ADMIN') or hasRole('SUPERVISOR')")
-    public ResponseEntity<List<RecordDTO>> findAll(@RequestParam(name = "userid", required = false) Long userId,Authentication authentication) {
+    public ResponseEntity<List<RecordDTO>> findAll(
+            @RequestParam(name = "userid", required = false) Long userId,
+            @RequestParam(name = "from", required = false) LocalDate from,
+            @RequestParam(name = "to", required = false) LocalDate to,
+            Authentication authentication) {
         User authUser = (User) authentication.getPrincipal();
 
         List<Record> records = new ArrayList<>();
-        if(userId==null) records = recordService.findAll();
+
+        if(userId==null){
+            if(from!=null && to!=null){
+                records = recordService.findAllByDate(LocalDateTime.of(from,LocalTime.MIN),LocalDateTime.of(to,LocalTime.MIN));
+            }
+            else records = recordService.findAll();
+        }
         else recordService.findAllByUserId(userId);
 
         if (records.isEmpty())
@@ -71,7 +82,7 @@ public class RecordController {
         if (user.isEmpty())
             return ResponseEntity.notFound().build();
 
-        if (lastRecord.isPresent() && lastRecord.get().getRecordOut() == null)
+        if (lastRecord.isPresent() && lastRecord.get().getRecordEnd() == null)
             return ResponseEntity.status(HttpStatus.CONFLICT).body("Hay un registro sin finalizar.");
 
         Record record = Record.builder()
@@ -92,13 +103,13 @@ public class RecordController {
         if (user.isEmpty())
             return ResponseEntity.notFound().build();
 
-        if (lastRecord.isPresent() && lastRecord.get().getRecordOut() == null) {
+        if (lastRecord.isPresent() && lastRecord.get().getRecordEnd() == null) {
             Record record = lastRecord.get();
 
-            if (!record.getRecordIn().toLocalDate().isEqual(LocalDate.now()))
-                record.setRecordOut(LocalDateTime.of(record.getRecordIn().toLocalDate(), LocalTime.MAX));
+            if (!record.getRecordStart().toLocalDate().isEqual(LocalDate.now()))
+                record.setRecordEnd(LocalDateTime.of(record.getRecordStart().toLocalDate(), LocalTime.MAX));
 
-            else record.setRecordOut(LocalDateTime.now());
+            else record.setRecordEnd(LocalDateTime.now());
 
             recordService.save(record);
 
