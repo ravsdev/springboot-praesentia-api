@@ -34,7 +34,7 @@ public class UserController {
 
     @GetMapping()
     @PreAuthorize("hasRole('ADMIN') or hasRole('SUPERVISOR')")
-    public ResponseEntity<List<?>> getAll(@RequestParam(name="records", required = false) Boolean records) {
+    public ResponseEntity<List<?>> getAll(@RequestParam(name="records", defaultValue = "false", required = false) Boolean records) {
         List<User> users = userService.findAll();
         if (users.isEmpty())
             return ResponseEntity.noContent().build();

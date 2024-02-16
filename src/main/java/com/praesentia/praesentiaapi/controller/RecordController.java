@@ -1,9 +1,13 @@
 package com.praesentia.praesentiaapi.controller;
 
 import com.praesentia.praesentiaapi.dto.RecordDTO;
+import com.praesentia.praesentiaapi.dto.UserDTO;
+import com.praesentia.praesentiaapi.entity.Incident;
 import com.praesentia.praesentiaapi.entity.Record;
 import com.praesentia.praesentiaapi.entity.Role;
 import com.praesentia.praesentiaapi.entity.User;
+import com.praesentia.praesentiaapi.exceptions.ErrorMessage;
+import com.praesentia.praesentiaapi.service.IncidentService;
 import com.praesentia.praesentiaapi.service.RecordService;
 import com.praesentia.praesentiaapi.service.UserService;
 import org.modelmapper.ModelMapper;
@@ -20,6 +24,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @RestController
@@ -29,7 +34,8 @@ public class RecordController {
     private UserService userService;
     @Autowired
     private RecordService recordService;
-
+    @Autowired
+    private IncidentService incidentService;
     @Autowired
     private ModelMapper modelMapper;
 
@@ -38,9 +44,7 @@ public class RecordController {
     public ResponseEntity<List<RecordDTO>> findAll(
             @RequestParam(name = "userid", required = false) Long userId,
             @RequestParam(name = "from", required = false) LocalDate from,
-            @RequestParam(name = "to", required = false) LocalDate to,
-            Authentication authentication) {
-        User authUser = (User) authentication.getPrincipal();
+            @RequestParam(name = "to", required = false) LocalDate to) {
 
         List<Record> records = new ArrayList<>();
 
@@ -62,13 +66,17 @@ public class RecordController {
     }
 
     @GetMapping("{id}")
-    @PreAuthorize("(#id == authentication.principal.id) or hasRole('ADMIN') or hasRole('ADMIN')")
-    public ResponseEntity<RecordDTO> findById(@PathVariable(name = "id") Long id,
+    //@PreAuthorize("(#id == authentication.principal.id) or hasRole('ADMIN') or hasRole('ADMIN')")
+    public ResponseEntity<?> findById(@PathVariable(name = "id") Long id,
                                                      Authentication authentication) {
         Optional<Record> record = recordService.findById(id);
+        User authUser = (User) authentication.getPrincipal();
 
         if (record.isEmpty())
             return ResponseEntity.noContent().build();
+
+        if(authUser.getRole() == Role.EMPLOYEE && !Objects.equals(authUser.getId(), record.get().getUser().getId()))
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Permiso denegado.");
 
         return ResponseEntity.ok(modelMapper.map(record, RecordDTO.class));
     }
@@ -121,25 +129,35 @@ public class RecordController {
 
     //TO-DO
     @PutMapping("{id}")
-    public ResponseEntity<String> update(@PathVariable("id") Long id, @RequestBody RecordDTO recordDTO, Authentication authentication) {
+    public ResponseEntity<?> update(@PathVariable(name = "id") Long id,
+                                         @RequestBody RecordDTO recordDTO,
+                                         Authentication authentication) {
         User authUser = (User) authentication.getPrincipal();
-        Optional<User> user = userService.findById(authUser.getId());
+        Optional<Record> record = recordService.findById(id);
 
-        if (user.isEmpty())
+        if (record.isEmpty())
             return ResponseEntity.notFound().build();
 
-        Optional<Record> latestRecord = recordService.findLatestRecord(user.get().getId());
+        if(!Objects.equals(authUser.getId(), record.get().getUser().getId()))
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Permiso denegado.");
 
-        if (latestRecord.isEmpty())
-            return ResponseEntity.badRequest().build();
+        if(record.get().getIncident() != null)
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("El registro "+record.get().getId()+" ya ha sido modificado previamente.");
 
-        //latestRecord.get().getRecordOut() != null)
-        Record record = Record.builder()
-                .user(user.get())
-                .build();
-        recordService.update(record);
+        if(recordDTO.getId() == null)
+            recordDTO.setId(id);
 
-        return ResponseEntity.ok("Registro de entrada creado con éxito.");
+        Record updateRecord = recordService.update(modelMapper.map(recordDTO, Record.class));
+
+        Incident incident = new Incident();
+        incident.setOriginalRecordStart(record.get().getRecordStart());
+        incident.setOriginalRecordEnd(record.get().getRecordEnd());
+        incident.setRecord(record.get());
+
+        incidentService.save(incident);
+
+
+        return ResponseEntity.ok(modelMapper.map(updateRecord, RecordDTO.class));
     }
 
 }

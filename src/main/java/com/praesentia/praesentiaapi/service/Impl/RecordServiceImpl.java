@@ -1,6 +1,8 @@
 package com.praesentia.praesentiaapi.service.Impl;
 
 import com.praesentia.praesentiaapi.entity.Record;
+import com.praesentia.praesentiaapi.entity.User;
+import com.praesentia.praesentiaapi.exceptions.NotFoundException;
 import com.praesentia.praesentiaapi.repository.RecordRepository;
 import com.praesentia.praesentiaapi.service.RecordService;
 
@@ -22,6 +24,7 @@ public class RecordServiceImpl implements RecordService {
     private RecordRepository recordRepository;
 
     @Override
+    @Transactional(readOnly = true)
     public List<Record> findAll() {
         return recordRepository.findAll();
     }
@@ -50,7 +53,14 @@ public class RecordServiceImpl implements RecordService {
 
     @Override
     public Record update(Record record) {
-        return null;
+        Record updateRecord = recordRepository.findById(record.getId())
+                .orElseThrow(
+                        () -> new NotFoundException("Registro con ID: " + record.getId() + " no encontrado."));
+
+        updateRecord.setRecordStart(record.getRecordStart());
+        updateRecord.setRecordEnd(record.getRecordEnd());
+
+        return recordRepository.save(updateRecord);
     }
 
     @Override

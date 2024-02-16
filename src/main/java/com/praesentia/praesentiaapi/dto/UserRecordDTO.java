@@ -5,7 +5,10 @@ import com.praesentia.praesentiaapi.entity.Role;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.type.descriptor.DateTimeUtils;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,15 +24,18 @@ public class UserRecordDTO {
     private Role role;
     private boolean enabled;
     private List<RecordDTO> records = new ArrayList<>();
-/*
-    public List<RecordDTO> getRecords() {
-        return records.stream().map(
-                record->RecordDTO.builder()
-                        .id(record.getId())
-                        .recordIn(record.getRecordIn())
-                        .recordOut(record.getRecordOut())
-                        .build())
-                .toList();
+    private String totalTime;
+    public String getTotalTime() {
 
-    }*/
+        Long seconds = records.stream().reduce(0L, (acc, record) -> {
+            return acc + Duration.between(record.getRecordStart(), record.getRecordEnd()).toSeconds();
+        }, Long::sum);
+
+        Duration result = Duration.ofSeconds(seconds);
+
+        return String.format("%02d:%02d:%02d",
+                result.toHoursPart(),
+                result.toMinutesPart(),
+                result.toSecondsPart());
+    }
 }
