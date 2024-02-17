@@ -46,15 +46,17 @@ public class RecordController {
             @RequestParam(name = "from", required = false) LocalDate from,
             @RequestParam(name = "to", required = false) LocalDate to) {
 
-        List<Record> records = new ArrayList<>();
+        List<Record> records;
 
         if(userId==null){
-            if(from!=null && to!=null){
-                records = recordService.findAllByDate(LocalDateTime.of(from,LocalTime.MIN),LocalDateTime.of(to,LocalTime.MIN));
-            }
-            else records = recordService.findAll();
+            records = (from!=null && to!=null)?
+                    recordService.findAllByDate(LocalDateTime.of(from,LocalTime.MIN),LocalDateTime.of(to,LocalTime.MIN)):
+                    recordService.findAll();
+        }else {
+            records = (from!=null && to!=null)?
+                    recordService.findAllByUserIdAndDate(userId, LocalDateTime.of(from,LocalTime.MIN),LocalDateTime.of(to,LocalTime.MIN)).orElseGet(ArrayList::new):
+                    recordService.findAllByUserId(userId).orElseGet(ArrayList::new);
         }
-        else recordService.findAllByUserId(userId);
 
         if (records.isEmpty())
             return ResponseEntity.noContent().build();

@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import com.praesentia.praesentiaapi.entity.User;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
@@ -25,11 +26,12 @@ public class JwtServiceImpl implements JwtService {
     private String SECRET_KEY;
 
     @Override
-    public String getToken(UserDetails user) {
-        String role = user.getAuthorities().stream()
-                .map(r -> r.getAuthority()).collect(Collectors.toSet()).iterator().next();
+    public String getToken(User user) {
+        /*String role = user.getAuthorities().stream()
+                .map(r -> r.getAuthority()).collect(Collectors.toSet()).iterator().next();*/
         Map<String, Object> claims = new HashMap<>();
-        claims.put("role", role);
+        claims.put("role", user.getRole());
+        claims.put("id", user.getId());
         return getToken(claims, user);
     }
 

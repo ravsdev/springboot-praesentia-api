@@ -21,4 +21,7 @@ public interface RecordRepository extends JpaRepository<Record, Long> {
     //@Query(value = "SELECT * FROM records WHERE record", nativeQuery = true)
     List<Record> findAllByRecordStartBetween(LocalDateTime dateFrom, LocalDateTime dateTo);
 
+    //@Query(value ="SELECT * FROM record WHERE user_id=:id AND RECORD_START BETWEEN :dateFrom AND :dateTo", nativeQuery = true)
+    Optional<List<Record>> findAllByUserIdAndRecordStartBetween(Long id, LocalDateTime dateFrom, LocalDateTime dateTo);
+
 }

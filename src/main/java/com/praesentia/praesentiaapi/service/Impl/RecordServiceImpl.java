@@ -1,7 +1,6 @@
 package com.praesentia.praesentiaapi.service.Impl;
 
 import com.praesentia.praesentiaapi.entity.Record;
-import com.praesentia.praesentiaapi.entity.User;
 import com.praesentia.praesentiaapi.exceptions.NotFoundException;
 import com.praesentia.praesentiaapi.repository.RecordRepository;
 import com.praesentia.praesentiaapi.service.RecordService;
@@ -12,7 +11,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -76,5 +74,10 @@ public class RecordServiceImpl implements RecordService {
     @Override
     public List<Record> findAllByDate(LocalDateTime dateFrom, LocalDateTime dateTo) {
         return recordRepository.findAllByRecordStartBetween(dateFrom, dateTo);
+    }
+
+    @Override
+    public Optional<List<Record>> findAllByUserIdAndDate(Long userId, LocalDateTime dateFrom, LocalDateTime dateTo) {
+        return recordRepository.findAllByUserIdAndRecordStartBetween(userId, dateFrom, dateTo);
     }
 }

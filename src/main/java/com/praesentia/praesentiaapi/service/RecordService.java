@@ -20,4 +20,5 @@ public interface RecordService {
     Optional<Record> findLatestRecord(Long userId);
     List<Record> findAllByDate(LocalDateTime dateFrom, LocalDateTime dateTo);
 
+    Optional<List<Record>> findAllByUserIdAndDate(Long userId, LocalDateTime dateFrom, LocalDateTime dateTo);
 }

@@ -24,7 +24,7 @@ public class UserRecordDTO {
     private Role role;
     private boolean enabled;
     private List<RecordDTO> records = new ArrayList<>();
-    private String totalTime;
+    /*private String totalTime;
     public String getTotalTime() {
 
         Long seconds = records.stream().reduce(0L, (acc, record) -> {
@@ -37,5 +37,5 @@ public class UserRecordDTO {
                 result.toHoursPart(),
                 result.toMinutesPart(),
                 result.toSecondsPart());
-    }
+    }*/
 }
