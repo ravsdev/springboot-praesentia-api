@@ -1,10 +1,12 @@
 package com.praesentia.praesentiaapi.controller;
 
+import com.praesentia.praesentiaapi.auth.response.ApiResponse;
 import com.praesentia.praesentiaapi.dto.UserDTO;
 import com.praesentia.praesentiaapi.dto.UserRecordDTO;
 import com.praesentia.praesentiaapi.entity.Role;
 import com.praesentia.praesentiaapi.entity.User;
 import com.praesentia.praesentiaapi.exceptions.AlreadyExistsException;
+import com.praesentia.praesentiaapi.exceptions.NotFoundException;
 import com.praesentia.praesentiaapi.service.UserService;
 
 import jakarta.validation.Valid;
@@ -90,18 +92,18 @@ public class UserController {
             @PathVariable(name = "id") Long id,
             @RequestBody UserDTO userDTO,
             Authentication authentication) {
-        Optional<User> user = userService.findById(id);
+        Optional<User> userDB = userService.findById(id);
         User authUser = (User) authentication.getPrincipal();
 
-        if (user.isEmpty())
+        if (userDB.isEmpty())
             return ResponseEntity.notFound().build();
-
+        
         if(userDTO.getId() == null)
             userDTO.setId(id);
 
         if(authUser.getRole() != Role.ADMIN){
-            userDTO.setRole(user.get().getRole());
-            userDTO.setEnabled(user.get().getEnabled());
+            userDTO.setRole(userDB.get().getRole());
+            userDTO.setEnabled(userDB.get().getEnabled());
         }
 
         User updateUser = userService.update(modelMapper.map(userDTO, User.class));
@@ -112,7 +114,7 @@ public class UserController {
 
     @DeleteMapping("{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<String> delete(
+    public ResponseEntity<?> delete(
             @PathVariable Long id) {
         Optional<User> user = userService.findById(id);
 
@@ -125,8 +127,11 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.CONFLICT).body("El usuario tiene registros.");
 
         userService.deleteById(id);
-
-        return ResponseEntity.ok("User deleted");
+        return ResponseEntity.ok(ApiResponse
+                .builder()
+                .status(200)
+                .message("User deleted")
+                .build());
 
     }
 }

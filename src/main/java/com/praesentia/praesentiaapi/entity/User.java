@@ -3,6 +3,8 @@ package com.praesentia.praesentiaapi.entity;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
@@ -28,25 +30,31 @@ public class User implements UserDetails {
     private Long id;
 
     @NotNull(message = "FirstName required")
+    @NotEmpty
     private String firstname;
 
     @NotNull(message = "LastName required")
+    @NotEmpty
     private String lastname;
 
     @Column(unique = true)
     @NotNull(message = "Email required")
+    @NotEmpty
+    @Email
     private String email;
 
     @NotNull(message = "Password Required")
+    @NotEmpty
     private String password;
 
     @Column(unique = true)
     @NotNull(message = "DNI Required")
+    @NotEmpty
     // @Pattern(regexp = "^\\d{8}-?[A-Z]{1}$", message = "DNI incorrecto")
     private String dni;
 
     @Enumerated(EnumType.STRING)
-    @NotNull
+    @NotNull(message = "ROLE Required")
     private Role role = Role.EMPLOYEE;
 
     @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)

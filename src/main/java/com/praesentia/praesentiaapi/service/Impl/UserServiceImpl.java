@@ -75,6 +75,7 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(
                         () -> new NotFoundException("Usuario con ID: " + user.getId() + " no encontrado."));
         updateUser.setDni(user.getDni());
+        //updateUser.setPassword(passwordEncoder.encode(user.getPassword()));
         updateUser.setFirstname(user.getFirstname());
         updateUser.setLastname(user.getLastname());
         updateUser.setEmail(user.getEmail());
